@@ -52,7 +52,7 @@ function CheckoutForm({ priceLabel }) {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: window.location.origin,
+        return_url: `${window.location.origin}/welcome.html`,
         receipt_email: email,
       },
     });
