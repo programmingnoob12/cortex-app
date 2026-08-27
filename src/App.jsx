@@ -112,9 +112,12 @@ function CheckoutForm({ email }) {
         type="submit"
         disabled={submitting}
         className="w-full rounded-lg py-4 text-base font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
-        style={{ backgroundColor: C.accent, color: "#06181F" }}
+        style={{
+          background: `linear-gradient(to right, ${C.accent}, ${C.accentHover})`,
+          color: "#FFFFFF",
+        }}
       >
-        {submitting ? "Processing…" : "Start membership"}
+        {submitting ? "Processing…" : "Start training"}
       </button>
       <p className="text-xs text-center leading-relaxed" style={{ color: C.dim }}>
         By subscribing you authorise us to charge {PRICE_LABEL} {PRICE_PERIOD} until you
@@ -180,7 +183,10 @@ function EmailForm({ onSubmit, loading, errorMsg }) {
         type="submit"
         disabled={loading}
         className="w-full rounded-lg py-4 text-base font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
-        style={{ backgroundColor: C.accent, color: "#06181F" }}
+        style={{
+          background: `linear-gradient(to right, ${C.accent}, ${C.accentHover})`,
+          color: "#FFFFFF",
+        }}
       >
         {loading ? "Loading…" : "Continue"}
       </button>
@@ -253,10 +259,10 @@ export default function CheckoutPage() {
           </p>
           <ul className="space-y-2.5 text-base inline-block text-left" style={{ color: C.muted }}>
             {[
-              "Dual and Quad N-Back",
-              "Relational Reasoning Training",
-              "3D Motion Tracking",
-              "Streaks, ranks and full history",
+              "Sharper focus that holds for longer",
+              "Clearer thinking under pressure",
+              "Built for minds that wander",
+              "A few minutes a day, tracked and measured",
             ].map((line) => (
               <li key={line} className="flex items-center gap-3">
                 <span style={{ color: C.accent }}>✓</span>
