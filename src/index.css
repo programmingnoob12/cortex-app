@@ -28,25 +28,25 @@ a.hover\:opacity-90:hover {
   filter: brightness(1.06);
 }
 
-/* Top-lit hover: bright at the top, fading down, exactly like the
-   chess.com button. Done with background-image rather than inset shadows,
-   because a shadow can only blur an edge and never produced a real
-   top-to-bottom ramp.
+/* Hover feedback.
    
-   background-image is used instead of an ::after overlay on purpose. An
-   overlay needs position:relative on the button, and that overwrote
-   position:fixed on the floating Leaderboard, Achievements, Account and
-   Feedback buttons, which are direct children of the root flex container.
-   They turned into flex items and threw the whole page layout sideways.
+   Built with background-image rather than an ::after overlay or inset
+   shadows. An overlay needs position:relative on the button, which
+   overwrote position:fixed on the floating Leaderboard, Achievements,
+   Account and Feedback buttons and threw the page layout sideways; inset
+   shadows can only blur an edge and never made a real gradient.
    background-image touches no layout property and no box-shadow, so the
-   shadow-lg buttons keep their drop shadows untouched too. */
+   shadow-lg buttons keep their drop shadows.
+   
+   Scoped to [class*="bg-"] so text-only buttons like the Back link are
+   left alone. They have no fill, so a sheen just drew a grey box around
+   the text. */
 
-/* Solid-fill buttons. background-image layers over background-color without
-   replacing it, so each button keeps its own colour. Light only, no dark
-   component, so a tall card gets lighter on hover and never darker. The
-   ramp is a fixed 26px, so a normal button is lit across most of its face
-   while a tall regime card just catches the top edge. */
-button:hover:not(:disabled):not([class*="gradient"]) {
+/* Solid-fill buttons: lighter on hover, never darker, with the light
+   concentrated at the top. Fixed 26px ramp so a normal button is lit
+   across most of its face while a tall regime card catches only its top
+   edge. */
+button[class*="bg-"]:hover:not(:disabled):not([class*="gradient"]) {
   background-image: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 0.1),
@@ -55,19 +55,12 @@ button:hover:not(:disabled):not([class*="gradient"]) {
   );
 }
 
-/* Gradient buttons (Start Training and friends). Their fill IS a
-   background-image, so it has to be restated underneath the sheen rather
-   than layered over a colour. Brighter white on top and a touch of dark at
-   the bottom, since white alone is invisible on a light cyan fill. */
+/* Cyan gradient buttons: the whole fill steps up to a brighter cyan on
+   hover, top brighter than bottom. Their fill IS a background-image, so
+   the colours are restated here rather than tinted with white, which on a
+   light cyan just looked washed out. */
 button.bg-gradient-to-r:hover:not(:disabled) {
-  background-image:
-    linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0.3),
-      rgba(255, 255, 255, 0.06) 50%,
-      rgba(0, 0, 0, 0.1)
-    ),
-    linear-gradient(to right, #4cb9d8, #5fc5e0);
+  background-image: linear-gradient(to bottom, #8adef2, #6fd0e8);
 }
 
 button:not(:disabled) {
@@ -75,7 +68,7 @@ button:not(:disabled) {
     border-color 140ms ease, color 140ms ease, opacity 140ms ease;
 }
 
-button:active:not(:disabled) {
+button[class*="bg-"]:active:not(:disabled):not([class*="gradient"]) {
   background-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0.14),
@@ -84,7 +77,5 @@ button:active:not(:disabled) {
 }
 
 button.bg-gradient-to-r:active:not(:disabled) {
-  background-image:
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.04)),
-    linear-gradient(to right, #4cb9d8, #5fc5e0);
+  background-image: linear-gradient(to bottom, #5fc5e0, #4cb9d8);
 }
