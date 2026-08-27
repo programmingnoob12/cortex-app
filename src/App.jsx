@@ -72,89 +72,112 @@ const appearance = {
 };
 
 // ---------------------------------------------------------------------
-// Hero mark. Drawn inline rather than loaded as an image so it inherits
-// the palette, scales without artefacts, and adds no network request to
-// the page that takes payments.
+// Hero mark. Drawn inline rather than loaded as an image so it inherits the
+// palette, stays crisp at any size, and adds no network request to the page
+// that takes payments.
 //
-// The figure is a working-memory span: a row of nodes wired to a single
-// point, with the near ones lit and the far ones fading. That is what the
-// exercises actually train, so it reads as the product rather than as
-// generic decoration.
+// The geometry is the same faceted gem the app already uses for rank
+// emblems, scaled up with richer gradients. Reusing it means checkout and
+// the product read as one thing rather than two designs bolted together.
 // ---------------------------------------------------------------------
 function HeroMark() {
-  const nodes = [
-    { x: 26, y: 150, r: 9, lit: 1 },
-    { x: 68, y: 96, r: 12, lit: 0.92 },
-    { x: 74, y: 208, r: 10, lit: 0.82 },
-    { x: 126, y: 58, r: 8, lit: 0.6 },
-    { x: 132, y: 148, r: 15, lit: 1 },
-    { x: 122, y: 244, r: 8, lit: 0.5 },
-    { x: 188, y: 104, r: 10, lit: 0.34 },
-    { x: 194, y: 196, r: 9, lit: 0.26 },
-    { x: 244, y: 152, r: 7, lit: 0.16 },
-  ];
-  const hub = nodes[4];
+  const SIL = "60.1,68.3 178.9,68.3 237.7,102.6 254.9,144.3 149.5,281.5 44.2,144.3 61.3,102.6";
+  const TABLE = "60.1,68.3 178.9,68.3 215.7,112.4 83.4,112.4";
+  const CROWN_L = "61.3,102.6 60.1,68.3 83.4,112.4";
+  const CROWN_R = "178.9,68.3 237.7,102.6 215.7,112.4";
+  const CROWN_LL = "44.2,144.3 61.3,102.6 83.4,112.4";
+  const CROWN_RR = "254.9,144.3 237.7,102.6 215.7,112.4";
+  const PAV_L = "44.2,144.3 83.4,112.4 149.5,281.5";
+  const PAV_R = "254.9,144.3 215.7,112.4 149.5,281.5";
+  const PAV_C = "83.4,112.4 215.7,112.4 149.5,281.5";
 
   return (
     <svg
-      viewBox="0 0 280 300"
-      width="220"
-      height="236"
+      viewBox="0 0 300 340"
+      width="272"
+      height="308"
       role="img"
-      aria-label="A cluster of connected nodes, brightest at the centre and fading outward"
-      className="mx-auto md:mx-0"
+      aria-label="A faceted cyan gem"
+      className="mx-auto md:mx-0 block"
     >
       <defs>
-        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor={C.accent} stopOpacity="0.28" />
-          <stop offset="100%" stopColor={C.accent} stopOpacity="0" />
+        <radialGradient id="hm-halo" cx="50%" cy="40%" r="54%">
+          <stop offset="0%" stopColor="#5FC5E0" stopOpacity="0.5" />
+          <stop offset="45%" stopColor="#4CB9D8" stopOpacity="0.16" />
+          <stop offset="100%" stopColor="#8B7FE8" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id="nodeFill" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={C.accentHover} />
-          <stop offset="100%" stopColor={C.accent} />
+        <linearGradient id="hm-body" x1="0.12" y1="0" x2="0.9" y2="1">
+          <stop offset="0%" stopColor="#DFF7FF" />
+          <stop offset="18%" stopColor="#96DCEF" />
+          <stop offset="42%" stopColor="#4CB9D8" />
+          <stop offset="72%" stopColor="#256F8C" />
+          <stop offset="100%" stopColor="#3B3A72" />
         </linearGradient>
+        <linearGradient id="hm-table" x1="0.1" y1="0" x2="0.7" y2="1">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.72" />
+          <stop offset="55%" stopColor="#FFFFFF" stopOpacity="0.34" />
+          <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.16" />
+        </linearGradient>
+        <linearGradient id="hm-shade" x1="0" y1="0" x2="0.2" y2="1">
+          <stop offset="0%" stopColor="#06202B" stopOpacity="0.04" />
+          <stop offset="100%" stopColor="#08121F" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient id="hm-rim" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.8" />
+          <stop offset="45%" stopColor="#CFEFFA" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#8B7FE8" stopOpacity="0.35" />
+        </linearGradient>
+        <linearGradient id="hm-sheen" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.85" />
+          <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+        </linearGradient>
+        <radialGradient id="hm-floor" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#4CB9D8" stopOpacity="0.34" />
+          <stop offset="100%" stopColor="#4CB9D8" stopOpacity="0" />
+        </radialGradient>
+        <filter id="hm-soft" x="-45%" y="-45%" width="190%" height="190%">
+          <feGaussianBlur stdDeviation="9" />
+        </filter>
+        <clipPath id="hm-clip">
+          <polygon points={SIL} />
+        </clipPath>
       </defs>
 
-      <circle cx={hub.x} cy={hub.y} r="118" fill="url(#glow)" />
+      <circle cx="150" cy="146" r="142" fill="url(#hm-halo)" />
+      <ellipse cx="150" cy="290" rx="82" ry="13" fill="url(#hm-floor)" />
 
-      {nodes.map((n, i) =>
-        i === 4 ? null : (
-          <line
-            key={`e${i}`}
-            x1={hub.x}
-            y1={hub.y}
-            x2={n.x}
-            y2={n.y}
-            stroke={C.accent}
-            strokeWidth="1.25"
-            strokeOpacity={0.14 + n.lit * 0.4}
-          />
-        )
-      )}
+      <g filter="url(#hm-soft)" opacity="0.5">
+        <polygon points={SIL} fill="#4CB9D8" />
+      </g>
 
-      {nodes.map((n, i) => (
-        <circle
-          key={`n${i}`}
-          cx={n.x}
-          cy={n.y}
-          r={n.r}
-          fill="url(#nodeFill)"
-          fillOpacity={0.2 + n.lit * 0.8}
-          stroke={C.accentHover}
-          strokeOpacity={n.lit * 0.5}
-          strokeWidth="1"
-        />
-      ))}
+      <polygon points={SIL} fill="url(#hm-body)" />
+      <polygon points={PAV_L} fill="url(#hm-shade)" />
+      <polygon points={PAV_C} fill="#08121F" fillOpacity="0.12" />
+      <polygon points={PAV_R} fill="#FFFFFF" fillOpacity="0.06" />
+      <polygon points={CROWN_LL} fill="#FFFFFF" fillOpacity="0.12" />
+      <polygon points={CROWN_RR} fill="#08121F" fillOpacity="0.14" />
+      <polygon points={CROWN_L} fill="#FFFFFF" fillOpacity="0.24" />
+      <polygon points={CROWN_R} fill="#FFFFFF" fillOpacity="0.08" />
+      <polygon points={TABLE} fill="url(#hm-table)" />
 
-      <circle
-        cx={hub.x}
-        cy={hub.y}
-        r={hub.r + 9}
-        fill="none"
-        stroke={C.accent}
-        strokeOpacity="0.35"
-        strokeWidth="1"
+      <g clipPath="url(#hm-clip)">
+        <path d="M40 60 L96 60 L58 300 L20 300 Z" fill="url(#hm-sheen)" opacity="0.5" />
+        <path d="M108 60 L124 60 L86 300 L70 300 Z" fill="url(#hm-sheen)" opacity="0.28" />
+      </g>
+
+      <polygon points={SIL} fill="none" stroke="url(#hm-rim)" strokeWidth="2" strokeLinejoin="round" />
+
+      <path
+        d="M248 60 L253 79 L272 84 L253 89 L248 108 L243 89 L224 84 L243 79 Z"
+        fill="#F2FDFF"
+        opacity="0.95"
       />
+      <path
+        d="M267 120 L269.5 129 L278 131.5 L269.5 134 L267 143 L264.5 134 L256 131.5 L264.5 129 Z"
+        fill="#BDEBF7"
+        opacity="0.7"
+      />
+      <circle cx="231" cy="126" r="2.4" fill="#F2FDFF" opacity="0.75" />
     </svg>
   );
 }
