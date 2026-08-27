@@ -46,12 +46,13 @@ a.hover\:opacity-90:hover {
    concentrated at the top. Fixed 26px ramp so a normal button is lit
    across most of its face while a tall regime card catches only its top
    edge. */
-button[class*="bg-"]:hover:not(:disabled):not([class*="gradient"]) {
+button[class*="bg-"]:hover:not(:disabled):not([class*="gradient"]):not([class*="bg-transparent"]):not([class*="bg-none"]):not([class*="bg-clip"]) {
   background-image: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0.02) 26px,
-    rgba(255, 255, 255, 0) 40px
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0.05) 30px,
+    rgba(255, 255, 255, 0.02) 60px,
+    rgba(255, 255, 255, 0.02)
   );
 }
 
@@ -68,7 +69,7 @@ button:not(:disabled) {
     border-color 140ms ease, color 140ms ease, opacity 140ms ease;
 }
 
-button[class*="bg-"]:active:not(:disabled):not([class*="gradient"]) {
+button[class*="bg-"]:active:not(:disabled):not([class*="gradient"]):not([class*="bg-transparent"]):not([class*="bg-none"]) {
   background-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0.14),
