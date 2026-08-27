@@ -28,21 +28,20 @@ a.hover\:opacity-90:hover {
   filter: brightness(1.06);
 }
 
-/* Top-lit hover: a faint bright line along the top edge and a soft fall-off
+/* Top-lit hover: a bright line along the top edge and a soft fall-off
    beneath it, the way a physical button catches light from above.
    
    Deliberately built from inset box-shadow rather than an ::after overlay.
    An overlay needs a positioned ancestor, and setting position:relative on
-   buttons overwrote position:fixed on the floating Leaderboard, Achievements,
-   Account and Feedback buttons. They are direct children of the root flex
-   container, so they turned into flex items and shoved the whole page
-   layout sideways. box-shadow touches no layout property at all, so it
-   cannot do that.
+   buttons overwrote position:fixed on the floating Leaderboard,
+   Achievements, Account and Feedback buttons. Those are direct children of
+   the root flex container, so they became flex items and shoved the whole
+   page sideways. box-shadow touches no layout property, so it cannot.
    
-   The trailing outer shadow replaces the shadow-lg some buttons carry,
-   since box-shadow is a single property and cannot be appended to. It is
-   matched to shadow-lg so those buttons look unchanged apart from the
-   sheen. */
+   Both a white top AND a dark bottom are used, because one alone only works
+   on one kind of button: 8% white is invisible on the bright cyan gradient
+   buttons, while a dark edge is invisible on the dark ones. Together they
+   read as "lit from above" on any fill. */
 button:not(:disabled) {
   transition: box-shadow 140ms ease, filter 140ms ease, opacity 140ms ease,
     background-color 140ms ease, border-color 140ms ease, color 140ms ease;
@@ -50,11 +49,23 @@ button:not(:disabled) {
 
 button:hover:not(:disabled) {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 10px 16px -12px rgba(255, 255, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 12px 18px -14px rgba(255, 255, 255, 0.18),
+    inset 0 -16px 20px -16px rgba(0, 0, 0, 0.16);
+}
+
+/* Buttons that already carry a shadow-* class get theirs reinstated, since
+   box-shadow is one property and cannot be appended to. Buttons without one
+   are left flat, because adding a drop shadow on hover made the tall regime
+   cards look darker and sunken rather than lit. */
+button:hover:not(:disabled)[class*="shadow"] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 12px 18px -14px rgba(255, 255, 255, 0.18),
+    inset 0 -16px 20px -16px rgba(0, 0, 0, 0.16),
     0 10px 20px rgba(0, 0, 0, 0.28);
 }
 
 button:active:not(:disabled) {
-  box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.09);
 }
