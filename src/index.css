@@ -30,12 +30,16 @@ a.hover\:opacity-90:hover {
 
 /* Top-lit hover, the way a physical button catches light from above.
    Painted as an ::after overlay rather than an inset box-shadow: a shadow
-   would collide with the shadow-lg classes the cyan buttons already carry
-   (which is why they were being skipped), whereas an overlay layers over
-   any fill, gradient included, and leaves existing shadows alone.
-   The fall-off is a fixed 22px rather than a percentage, so a tall card
-   button gets a subtle edge sheen instead of a wash across its whole face. */
-button:not(:disabled) {
+   would collide with the shadow-lg classes the cyan buttons already carry,
+   whereas an overlay layers over any fill, gradient included, and leaves
+   existing shadows alone. The fall-off is a fixed 22px rather than a
+   percentage, so a tall card button gets a subtle edge sheen instead of a
+   wash across its whole face.
+   
+   The .fixed / .absolute / .sticky exclusions are load-bearing: this
+   selector outranks a single Tailwind class, so without them it overwrote
+   position:fixed on every floating button and broke the page layout. */
+button:not(:disabled):not(.fixed):not(.absolute):not(.sticky) {
   position: relative;
 }
 
@@ -48,12 +52,32 @@ button:not(:disabled)::after {
   opacity: 0;
   transition: opacity 140ms ease;
   background:
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 22px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 1px);
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0) 22px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 1px);
 }
 
-button:hover:not(:disabled)::after {
+button:hover:not(:disabled)::after,
+[role="button"]:hover:not([aria-disabled="true"])::after {
   opacity: 1;
+}
+
+/* Some controls are divs or anchors with a click handler rather than real
+   buttons, so they need the same overlay wired up separately. */
+[role="button"]:not([aria-disabled="true"]):not(.fixed):not(.absolute):not(.sticky) {
+  position: relative;
+}
+
+[role="button"]:not([aria-disabled="true"])::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 140ms ease;
+  background:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0) 22px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 1px);
 }
 
 /* Pressing it should feel like it moved. */
