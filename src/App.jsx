@@ -24,8 +24,17 @@ const CREATE_SUBSCRIPTION_URL =
   "https://sdvfacmhljkwojvmtflr.supabase.co/functions/v1/create-payment-intent";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_oeUIhMq6Wg9ElS6gCzbIZw_djTvdsLm";
 
-const PRICE_LABEL = "$40.00 NZD";
-const PRICE_PERIOD = "per month";
+// The displayed figures live here and must match the Stripe Prices exactly.
+// The saving badge is computed rather than hardcoded, so it can never claim
+// a discount the actual numbers do not deliver after rounding.
+const PLANS = {
+  monthly: { label: "$40.00 NZD", period: "per month", amount: 40, months: 1 },
+  annual: { label: "$385.00 NZD", period: "per year", amount: 385, months: 12 },
+};
+
+const ANNUAL_SAVING_PCT = Math.round(
+  (1 - PLANS.annual.amount / (PLANS.monthly.amount * 12)) * 100
+);
 
 // The app's palette, so checkout and the product look like one thing.
 const C = {
@@ -185,7 +194,7 @@ function HeroMark() {
 // ---------------------------------------------------------------------
 // 2. Step 2: the payment form, mounted once we have a clientSecret
 // ---------------------------------------------------------------------
-function CheckoutForm({ email }) {
+function CheckoutForm({ email, priceLabel, pricePeriod }) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -231,7 +240,7 @@ function CheckoutForm({ email }) {
         {submitting ? "Processing…" : "Start training"}
       </button>
       <p className="text-xs text-center leading-relaxed" style={{ color: C.dim }}>
-        By subscribing you authorise us to charge {PRICE_LABEL} {PRICE_PERIOD} until you
+        By subscribing you authorise us to charge {priceLabel} {pricePeriod} until you
         cancel. Cancel any time from inside the app.
       </p>
     </form>
@@ -242,6 +251,48 @@ function CheckoutForm({ email }) {
 // 3. Step 1: email entry. Submitting this creates the Stripe Customer and
 //    Subscription server-side and returns a clientSecret.
 // ---------------------------------------------------------------------
+function PlanToggle({ plan, onChange }) {
+  return (
+    <div
+      className="flex gap-1 p-1 rounded-xl"
+      style={{ backgroundColor: C.raised, border: `1px solid ${C.border}` }}
+      role="group"
+      aria-label="Billing period"
+    >
+      {[
+        { key: "monthly", text: "Monthly" },
+        { key: "annual", text: "Yearly" },
+      ].map((opt) => {
+        const active = plan === opt.key;
+        return (
+          <button
+            key={opt.key}
+            type="button"
+            onClick={() => onChange(opt.key)}
+            aria-pressed={active}
+            className="flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 px-3 text-sm font-medium transition-colors"
+            style={
+              active
+                ? { backgroundColor: C.surface, color: C.text, border: `1px solid ${C.borderStrong}` }
+                : { background: "none", color: C.muted, border: "1px solid transparent" }
+            }
+          >
+            {opt.text}
+            {opt.key === "annual" && (
+              <span
+                className="text-[11px] font-semibold rounded-full px-2 py-0.5"
+                style={{ backgroundColor: C.accent, color: "#06181F" }}
+              >
+                SAVE {ANNUAL_SAVING_PCT}%
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function readEmailFromUrl() {
   try {
     return new URLSearchParams(window.location.search).get("email") || "";
@@ -324,6 +375,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [plan, setPlan] = useState("monthly");
 
   const handleEmailSubmit = async (enteredEmail) => {
     setLoading(true);
@@ -335,7 +387,7 @@ export default function CheckoutPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ email: enteredEmail, plan: "monthly" }),
+        body: JSON.stringify({ email: enteredEmail, plan }),
       });
       const data = await res.json();
       if (data.clientSecret) {
@@ -376,9 +428,18 @@ export default function CheckoutPage() {
           style={{ backgroundColor: C.surface, border: `1px solid ${C.border}` }}
         >
           <div>
+            {/* Hidden once a clientSecret exists: the subscription has already
+                been created against one price by then, so letting the plan
+                change would show a figure that no longer matches what
+                Stripe will charge. */}
+            {!clientSecret && (
+              <div className="mb-5">
+                <PlanToggle plan={plan} onChange={setPlan} />
+              </div>
+            )}
             <div className="flex items-baseline justify-between">
               <h2 className="text-lg font-medium">Total due today</h2>
-              <span className="text-2xl font-semibold">{PRICE_LABEL}</span>
+              <span className="text-2xl font-semibold">{PLANS[plan].label}</span>
             </div>
             <button
               type="button"
@@ -395,21 +456,29 @@ export default function CheckoutPage() {
               >
                 <div className="flex justify-between">
                   <span>Cortex membership</span>
-                  <span>{PRICE_LABEL}</span>
+                  <span>{PLANS[plan].label}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Billed</span>
-                  <span>Monthly</span>
+                  <span>{plan === "annual" ? "Yearly" : "Monthly"}</span>
                 </div>
+                {plan === "annual" && (
+                  <div className="flex justify-between" style={{ color: C.accentText }}>
+                    <span>You save</span>
+                    <span>
+                      ${(PLANS.monthly.amount * 12 - PLANS.annual.amount).toFixed(2)} NZD
+                    </span>
+                  </div>
+                )}
                 <div
                   className="flex justify-between pt-2 font-medium"
                   style={{ borderTop: `1px solid ${C.border}`, color: C.text }}
                 >
                   <span>Due today</span>
-                  <span>{PRICE_LABEL}</span>
+                  <span>{PLANS[plan].label}</span>
                 </div>
                 <p className="pt-1 leading-relaxed" style={{ color: C.dim }}>
-                  Renews automatically. Cancel, pause or switch to annual any time from
+                  Renews automatically. Cancel, pause or switch plans any time from
                   inside the app.
                 </p>
               </div>
@@ -422,7 +491,11 @@ export default function CheckoutPage() {
             <EmailForm onSubmit={handleEmailSubmit} loading={loading} errorMsg={errorMsg} />
           ) : (
             <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
-              <CheckoutForm email={email} />
+              <CheckoutForm
+                email={email}
+                priceLabel={PLANS[plan].label}
+                pricePeriod={PLANS[plan].period}
+              />
             </Elements>
           )}
         </div>
