@@ -16,3 +16,12 @@ button:disabled,
 [role="button"][aria-disabled="true"] {
   cursor: not-allowed;
 }
+
+/* Dimming a bright button on a dark background reads as "disabled", not
+   "hover". Every hover:opacity-90 button brightens instead. Scoped to
+   button/anchor so non-interactive uses of the class are untouched. */
+button.hover\:opacity-90:hover:not(:disabled),
+a.hover\:opacity-90:hover {
+  opacity: 1 !important;
+  filter: brightness(1.12);
+}

@@ -72,6 +72,94 @@ const appearance = {
 };
 
 // ---------------------------------------------------------------------
+// Hero mark. Drawn inline rather than loaded as an image so it inherits
+// the palette, scales without artefacts, and adds no network request to
+// the page that takes payments.
+//
+// The figure is a working-memory span: a row of nodes wired to a single
+// point, with the near ones lit and the far ones fading. That is what the
+// exercises actually train, so it reads as the product rather than as
+// generic decoration.
+// ---------------------------------------------------------------------
+function HeroMark() {
+  const nodes = [
+    { x: 26, y: 150, r: 9, lit: 1 },
+    { x: 68, y: 96, r: 12, lit: 0.92 },
+    { x: 74, y: 208, r: 10, lit: 0.82 },
+    { x: 126, y: 58, r: 8, lit: 0.6 },
+    { x: 132, y: 148, r: 15, lit: 1 },
+    { x: 122, y: 244, r: 8, lit: 0.5 },
+    { x: 188, y: 104, r: 10, lit: 0.34 },
+    { x: 194, y: 196, r: 9, lit: 0.26 },
+    { x: 244, y: 152, r: 7, lit: 0.16 },
+  ];
+  const hub = nodes[4];
+
+  return (
+    <svg
+      viewBox="0 0 280 300"
+      width="220"
+      height="236"
+      role="img"
+      aria-label="A cluster of connected nodes, brightest at the centre and fading outward"
+      className="mx-auto md:mx-0"
+    >
+      <defs>
+        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={C.accent} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={C.accent} stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="nodeFill" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor={C.accentHover} />
+          <stop offset="100%" stopColor={C.accent} />
+        </linearGradient>
+      </defs>
+
+      <circle cx={hub.x} cy={hub.y} r="118" fill="url(#glow)" />
+
+      {nodes.map((n, i) =>
+        i === 4 ? null : (
+          <line
+            key={`e${i}`}
+            x1={hub.x}
+            y1={hub.y}
+            x2={n.x}
+            y2={n.y}
+            stroke={C.accent}
+            strokeWidth="1.25"
+            strokeOpacity={0.14 + n.lit * 0.4}
+          />
+        )
+      )}
+
+      {nodes.map((n, i) => (
+        <circle
+          key={`n${i}`}
+          cx={n.x}
+          cy={n.y}
+          r={n.r}
+          fill="url(#nodeFill)"
+          fillOpacity={0.2 + n.lit * 0.8}
+          stroke={C.accentHover}
+          strokeOpacity={n.lit * 0.5}
+          strokeWidth="1"
+        />
+      ))}
+
+      <circle
+        cx={hub.x}
+        cy={hub.y}
+        r={hub.r + 9}
+        fill="none"
+        stroke={C.accent}
+        strokeOpacity="0.35"
+        strokeWidth="1"
+      />
+    </svg>
+  );
+}
+
+// ---------------------------------------------------------------------
 // 2. Step 2: the payment form, mounted once we have a clientSecret
 // ---------------------------------------------------------------------
 function CheckoutForm({ email }) {
@@ -249,6 +337,7 @@ export default function CheckoutPage() {
     >
       <div className="w-full max-w-5xl grid md:grid-cols-2 gap-16 items-center">
         <div className="space-y-5 text-center md:text-left">
+          <HeroMark />
           <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight">
             Sharpen your mind,
             <br />
