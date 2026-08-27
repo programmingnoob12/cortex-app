@@ -61,7 +61,11 @@ button[class*="bg-"]:hover:not(:disabled):not([class*="gradient"]):not([class*="
    the colours are restated here rather than tinted with white, which on a
    light cyan just looked washed out. */
 button.bg-gradient-to-r:hover:not(:disabled) {
-  background-image: linear-gradient(to bottom, #8adef2, #6fd0e8);
+  /* A wide top-to-bottom ramp, not a flat wash. #8adef2 to #6fd0e8 was too
+     narrow a range to read as a gradient at all. The darkest point here,
+     #57c3e0, is still brighter than the resting fill's lightest point, so
+     the whole button lifts while the light stays clearly at the top. */
+  background-image: linear-gradient(to bottom, #a3e6f7, #7ad3ec 45%, #57c3e0);
 }
 
 button:not(:disabled) {
