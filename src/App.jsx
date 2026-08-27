@@ -98,7 +98,7 @@ function HeroMark() {
       height="308"
       role="img"
       aria-label="A faceted cyan gem"
-      className="mx-auto md:mx-0 block"
+      className="mx-auto block"
     >
       <defs>
         <radialGradient id="hm-halo" cx="50%" cy="40%" r="54%">
@@ -359,29 +359,16 @@ export default function CheckoutPage() {
       style={{ backgroundColor: C.bg, color: C.text }}
     >
       <div className="w-full max-w-5xl grid md:grid-cols-2 gap-16 items-center">
-        <div className="space-y-5 text-center md:text-left">
+        {/* Mark and one line of copy, nothing else. A feature list here
+            competes with the payment form for attention and makes the page
+            read as a brochure rather than a checkout. */}
+        <div className="text-center">
           <HeroMark />
-          <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight">
-            Sharpen your mind,
+          <h1 className="text-3xl md:text-4xl font-semibold leading-snug tracking-tight mt-2">
+            Sharpen your mind.
             <br />
-            a few minutes a day.
+            A few minutes a day.
           </h1>
-          <p className="text-base leading-relaxed" style={{ color: C.muted }}>
-            One membership. Every exercise. Your progress, wherever you go.
-          </p>
-          <ul className="space-y-2.5 text-base inline-block text-left" style={{ color: C.muted }}>
-            {[
-              "Sharper focus that holds for longer",
-              "Clearer thinking under pressure",
-              "Built for minds that wander",
-              "A few minutes a day, tracked and measured",
-            ].map((line) => (
-              <li key={line} className="flex items-center gap-3">
-                <span style={{ color: C.accent }}>✓</span>
-                {line}
-              </li>
-            ))}
-          </ul>
         </div>
 
         <div
