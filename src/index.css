@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+/* Browsers give <button> cursor: default, and Tailwind's preflight does not
+   change it, so every button in the app felt unclickable. Applied globally
+   here rather than per-button so nothing can be missed. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+label[for],
+summary,
+select,
+a[href] {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+}
