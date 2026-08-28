@@ -316,9 +316,15 @@ function HeroMark() {
 }
 
 // ---------------------------------------------------------------------
-// 2. Step 2: the payment form, mounted once we have a clientSecret
+// 2. Step 2: the payment form.
+//
+// Uses Stripe's deferred intent flow: <Elements> is given mode, amount and
+// currency instead of a clientSecret, so the card fields render with no
+// server round trip at all. The subscription is created when Pay is
+// pressed, where a moment's wait is expected, rather than in front of an
+// empty card form where it read as the page being broken.
 // ---------------------------------------------------------------------
-function CheckoutForm({ email, priceLabel, pricePeriod, currencyCode }) {
+function CheckoutForm({ email, priceLabel, pricePeriod, currencyCode, getClientSecret }) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -330,8 +336,27 @@ function CheckoutForm({ email, priceLabel, pricePeriod, currencyCode }) {
     setSubmitting(true);
     setErrorMsg("");
 
+    // Validates the card fields before anything is created server-side, so
+    // a typo in the card number never leaves an orphan subscription behind.
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      setErrorMsg(submitError.message || "Please check your card details.");
+      setSubmitting(false);
+      return;
+    }
+
+    let clientSecret;
+    try {
+      clientSecret = await getClientSecret();
+    } catch (err) {
+      setErrorMsg(err?.message || "Could not start checkout. Please try again.");
+      setSubmitting(false);
+      return;
+    }
+
     const { error } = await stripe.confirmPayment({
       elements,
+      clientSecret,
       confirmParams: {
         return_url: `${window.location.origin}/welcome.html`,
         receipt_email: email,
@@ -375,8 +400,8 @@ function CheckoutForm({ email, priceLabel, pricePeriod, currencyCode }) {
 }
 
 // ---------------------------------------------------------------------
-// 3. Step 1: email entry. Submitting this creates the Stripe Customer and
-//    Subscription server-side and returns a clientSecret.
+// 3. Step 1: email entry. Submitting this only moves to the card step; the
+//    Customer and Subscription are created when Pay is pressed.
 // ---------------------------------------------------------------------
 function PlanToggle({ plan, onChange }) {
   return (
@@ -507,8 +532,7 @@ function EmailForm({ onSubmit, loading, errorMsg, onFirstInput }) {
 // ---------------------------------------------------------------------
 export default function CheckoutPage() {
   const [email, setEmail] = useState("");
-  const [clientSecret, setClientSecret] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [showCard, setShowCard] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [plan, setPlan] = useState("monthly");
@@ -549,35 +573,32 @@ export default function CheckoutPage() {
     [requestSecret]
   );
 
-  const handleEmailSubmit = async (enteredEmail) => {
+  // Purely local now. Moving to the card step involves no network call at
+  // all, because <Elements> renders from mode/amount/currency rather than a
+  // clientSecret, so Continue is instant by construction rather than by
+  // winning a race against a slow request.
+  const handleEmailSubmit = (enteredEmail) => {
     setErrorMsg("");
-
-    const ready = secretsRef.current[plan];
-    if (ready) {
-      setEmail(enteredEmail);
-      setClientSecret(ready);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // Join the in-flight warm request rather than starting a second one.
-      const data = (await warmingRef.current[plan]) || (await requestSecret(plan));
-      if (data?.clientSecret) {
-        secretsRef.current[plan] = data.clientSecret;
-        setEmail(enteredEmail);
-        setClientSecret(data.clientSecret);
-      } else if (data?.alreadySubscribed) {
-        setErrorMsg("That email already has a membership. Sign in instead.");
-      } else {
-        setErrorMsg(data?.error || "Could not start checkout. Please try again.");
-      }
-    } catch {
-      setErrorMsg("Could not start checkout. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    setEmail(enteredEmail);
+    setShowCard(true);
   };
+
+  // Called by the pay button. Reuses whatever the warm request produced, and
+  // falls back to a fresh call if it never landed or the plan changed.
+  const getClientSecret = useCallback(async () => {
+    const ready = secretsRef.current[plan];
+    if (ready) return ready;
+
+    const data = (await warmingRef.current[plan]) || (await requestSecret(plan));
+    if (data?.clientSecret) {
+      secretsRef.current[plan] = data.clientSecret;
+      return data.clientSecret;
+    }
+    if (data?.alreadySubscribed) {
+      throw new Error("That email already has a membership. Sign in instead.");
+    }
+    throw new Error(data?.error || "Could not start checkout. Please try again.");
+  }, [plan, requestSecret]);
 
   return (
     <div
@@ -605,11 +626,11 @@ export default function CheckoutPage() {
               without sitting in the middle of the payment flow. Only shown
               on the card step, where the plan toggle is hidden and there is
               otherwise no way back to change plan or fix the email. */}
-          {clientSecret && (
+          {showCard && (
             <button
               type="button"
               onClick={() => {
-                setClientSecret(null);
+                setShowCard(false);
                 setErrorMsg("");
               }}
               className="text-sm font-medium transition-colors"
@@ -622,11 +643,10 @@ export default function CheckoutPage() {
           )}
 
           <div>
-            {/* Hidden once a clientSecret exists: the subscription has already
-                been created against one price by then, so letting the plan
-                change would show a figure that no longer matches what
-                Stripe will charge. */}
-            {!clientSecret && (
+            {/* Hidden on the card step. The amount is baked into the Elements
+                options there, so changing plan behind the card fields would
+                show one figure and charge another. */}
+            {!showCard && (
               <div className="mb-5">
                 <PlanToggle
                   plan={plan}
@@ -692,21 +712,30 @@ export default function CheckoutPage() {
 
           <div style={{ borderTop: `1px solid ${C.border}` }} />
 
-          {!clientSecret ? (
+          {!showCard ? (
             <EmailForm
               onSubmit={handleEmailSubmit}
-              loading={loading}
+              loading={false}
               errorMsg={errorMsg}
               onFirstInput={() => warmSecret(plan)}
             />
           ) : (
             <>
-              <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
+              <Elements
+                stripe={stripePromise}
+                options={{
+                  mode: "subscription",
+                  amount: Math.round(PLANS[plan].amount * 100),
+                  currency: CURRENCY,
+                  appearance,
+                }}
+              >
                 <CheckoutForm
                   email={email}
                   priceLabel={PLANS[plan].label}
                   pricePeriod={PLANS[plan].period}
                   currencyCode={P.code}
+                  getClientSecret={getClientSecret}
                 />
               </Elements>
             </>
