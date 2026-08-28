@@ -65,7 +65,11 @@ button.bg-gradient-to-r:hover:not(:disabled) {
      narrow a range to read as a gradient at all. The darkest point here,
      #57c3e0, is still brighter than the resting fill's lightest point, so
      the whole button lifts while the light stays clearly at the top. */
-  background-image: linear-gradient(to bottom, #a3e6f7, #7ad3ec 45%, #57c3e0);
+  /* Pulled back a step. The previous top stop, #a3e6f7, was close enough to
+     white that the button glared. The ramp is kept, and the bottom stop is
+     still above the resting fill's lightest point so the whole button
+     lifts. */
+  background-image: linear-gradient(to bottom, #8fdbf0, #6dcce7 45%, #52bedc);
 }
 
 button:not(:disabled) {
