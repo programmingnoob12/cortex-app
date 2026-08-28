@@ -49,24 +49,80 @@ const COUNTRY_CURRENCY = {
   LU: "eur", MT: "eur", NL: "eur", PT: "eur", SK: "eur", SI: "eur", ES: "eur",
 };
 
-// Read from the browser's locale rather than an IP lookup: no third-party
-// request on the page that takes payments, and no extra latency.
+// Timezone is checked BEFORE locale, and that ordering is the whole point.
+// A locale is the language someone reads in, not where they are: macOS
+// hands New Zealanders en-GB by default, which billed them in pounds.
+// A timezone is set from the actual clock on the machine.
+const ZONE_CURRENCY = {
+  "Pacific/Auckland": "nzd",
+  "Pacific/Chatham": "nzd",
+  "Europe/London": "gbp",
+  "Europe/Belfast": "gbp",
+  "Europe/Dublin": "eur",
+};
+
+const ZONE_PREFIX_CURRENCY = {
+  "Australia/": "aud",
+  "Europe/": "eur",
+};
+
+const US_ZONES = [
+  "America/New_York", "America/Chicago", "America/Denver",
+  "America/Los_Angeles", "America/Phoenix", "America/Anchorage",
+  "America/Adak", "America/Detroit", "America/Boise", "America/Juneau",
+  "America/Honolulu", "Pacific/Honolulu",
+];
+
+const CA_ZONES = [
+  "America/Toronto", "America/Vancouver", "America/Edmonton",
+  "America/Winnipeg", "America/Halifax", "America/St_Johns",
+  "America/Regina", "America/Montreal",
+];
+
+function currencyFromZone(zone) {
+  if (!zone) return null;
+  if (ZONE_CURRENCY[zone]) return ZONE_CURRENCY[zone];
+  if (US_ZONES.includes(zone)) return "usd";
+  if (CA_ZONES.includes(zone)) return "cad";
+  if (zone.startsWith("America/Indiana/") || zone.startsWith("America/Kentucky/")) {
+    return "usd";
+  }
+  for (const [prefix, cur] of Object.entries(ZONE_PREFIX_CURRENCY)) {
+    if (zone.startsWith(prefix)) return cur;
+  }
+  return null;
+}
+
+function currencyFromLocale() {
+  const tags = [...(navigator.languages || []), navigator.language || ""].filter(
+    Boolean
+  );
+  for (const tag of tags) {
+    const region = tag.split("-")[1];
+    if (region && COUNTRY_CURRENCY[region.toUpperCase()]) {
+      return COUNTRY_CURRENCY[region.toUpperCase()];
+    }
+  }
+  return null;
+}
+
+// No IP lookup: no third-party request on the page that takes payments,
+// and no added latency.
 function detectCurrency() {
   try {
-    const tags = [
-      ...(navigator.languages || []),
-      navigator.language || "",
-    ].filter(Boolean);
-    for (const tag of tags) {
-      const region = tag.split("-")[1];
-      if (region && COUNTRY_CURRENCY[region.toUpperCase()]) {
-        return COUNTRY_CURRENCY[region.toUpperCase()];
-      }
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (zone) {
+      // A known timezone is trusted completely, mapped or not. Falling back
+      // to locale for an unmapped zone reintroduces the exact bug this
+      // replaced: a Tokyo visitor reading en-GB would be billed in pounds.
+      // Unmapped means NZD, which is the server's fallback too.
+      return currencyFromZone(zone) || "nzd";
     }
+    // Only reached when the browser reports no timezone at all.
+    return currencyFromLocale() || "nzd";
   } catch {
-    // fall through
+    return "nzd";
   }
-  return "nzd";
 }
 
 const CURRENCY = detectCurrency();
