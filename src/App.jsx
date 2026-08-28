@@ -618,14 +618,33 @@ export default function CheckoutPage() {
           {!clientSecret ? (
             <EmailForm onSubmit={handleEmailSubmit} loading={loading} errorMsg={errorMsg} />
           ) : (
-            <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
-              <CheckoutForm
-                email={email}
-                priceLabel={PLANS[plan].label}
-                pricePeriod={PLANS[plan].period}
-                currencyCode={P.code}
-              />
-            </Elements>
+            <>
+              {/* Once the card step is reached the plan toggle is hidden, so
+                  without this there is no way to change your mind about
+                  monthly vs yearly, or fix a mistyped email, short of
+                  reloading the page. */}
+              <button
+                type="button"
+                onClick={() => {
+                  setClientSecret(null);
+                  setErrorMsg("");
+                }}
+                className="text-sm font-medium transition-colors mb-1"
+                style={{ color: C.muted }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = C.text)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = C.muted)}
+              >
+                &lsaquo; Back
+              </button>
+              <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
+                <CheckoutForm
+                  email={email}
+                  priceLabel={PLANS[plan].label}
+                  pricePeriod={PLANS[plan].period}
+                  currencyCode={P.code}
+                />
+              </Elements>
+            </>
           )}
         </div>
       </div>
