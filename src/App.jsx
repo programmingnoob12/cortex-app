@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -428,8 +428,9 @@ function readEmailFromUrl() {
   }
 }
 
-function EmailForm({ onSubmit, loading, errorMsg }) {
+function EmailForm({ onSubmit, loading, errorMsg, onFirstInput }) {
   const [email, setEmail] = useState(readEmailFromUrl);
+  const warmed = useRef(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -447,7 +448,15 @@ function EmailForm({ onSubmit, loading, errorMsg }) {
           type="email"
           required
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            // Fires once, on the first character typed. By the time an
+            // address is finished, Stripe has usually answered.
+            if (!warmed.current) {
+              warmed.current = true;
+              onFirstInput?.();
+            }
+          }}
           placeholder="you@example.com"
           className="w-full rounded-lg px-4 py-3.5 text-base focus:outline-none transition-colors"
           style={{
@@ -504,26 +513,64 @@ export default function CheckoutPage() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [plan, setPlan] = useState("monthly");
 
+  // A client secret per plan, fetched the moment someone starts typing an
+  // address rather than when they press Continue. Creating the Stripe
+  // customer and subscription takes about a second, and that second used to
+  // sit in front of the card form as a spinner.
+  //
+  // Warming deliberately sends NO email. The address is not needed to make
+  // the subscription, it can still change while they type, and the webhook
+  // provisions the account from receipt_email at confirm time regardless.
+  const secretsRef = useRef({});
+  const warmingRef = useRef({});
+
+  const requestSecret = useCallback(async (targetPlan) => {
+    const res = await fetch(CREATE_SUBSCRIPTION_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({ plan: targetPlan, currency: CURRENCY }),
+    });
+    return res.json();
+  }, []);
+
+  const warmSecret = useCallback(
+    (targetPlan) => {
+      if (secretsRef.current[targetPlan] || warmingRef.current[targetPlan]) return;
+      warmingRef.current[targetPlan] = requestSecret(targetPlan)
+        .then((data) => {
+          if (data?.clientSecret) secretsRef.current[targetPlan] = data.clientSecret;
+          return data;
+        })
+        .catch(() => null);
+    },
+    [requestSecret]
+  );
+
   const handleEmailSubmit = async (enteredEmail) => {
-    setLoading(true);
     setErrorMsg("");
+
+    const ready = secretsRef.current[plan];
+    if (ready) {
+      setEmail(enteredEmail);
+      setClientSecret(ready);
+      return;
+    }
+
+    setLoading(true);
     try {
-      const res = await fetch(CREATE_SUBSCRIPTION_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ email: enteredEmail, plan, currency: CURRENCY }),
-      });
-      const data = await res.json();
-      if (data.clientSecret) {
+      // Join the in-flight warm request rather than starting a second one.
+      const data = (await warmingRef.current[plan]) || (await requestSecret(plan));
+      if (data?.clientSecret) {
+        secretsRef.current[plan] = data.clientSecret;
         setEmail(enteredEmail);
         setClientSecret(data.clientSecret);
-      } else if (data.alreadySubscribed) {
+      } else if (data?.alreadySubscribed) {
         setErrorMsg("That email already has a membership. Sign in instead.");
       } else {
-        setErrorMsg(data.error || "Could not start checkout. Please try again.");
+        setErrorMsg(data?.error || "Could not start checkout. Please try again.");
       }
     } catch {
       setErrorMsg("Could not start checkout. Please try again.");
@@ -554,6 +601,26 @@ export default function CheckoutPage() {
           className="rounded-2xl p-7 space-y-6"
           style={{ backgroundColor: C.surface, border: `1px solid ${C.border}` }}
         >
+          {/* Top-left of the card, above everything, so it is reachable
+              without sitting in the middle of the payment flow. Only shown
+              on the card step, where the plan toggle is hidden and there is
+              otherwise no way back to change plan or fix the email. */}
+          {clientSecret && (
+            <button
+              type="button"
+              onClick={() => {
+                setClientSecret(null);
+                setErrorMsg("");
+              }}
+              className="text-sm font-medium transition-colors"
+              style={{ color: C.muted, marginBottom: "-0.5rem" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = C.text)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = C.muted)}
+            >
+              &lsaquo; Back
+            </button>
+          )}
+
           <div>
             {/* Hidden once a clientSecret exists: the subscription has already
                 been created against one price by then, so letting the plan
@@ -561,7 +628,17 @@ export default function CheckoutPage() {
                 Stripe will charge. */}
             {!clientSecret && (
               <div className="mb-5">
-                <PlanToggle plan={plan} onChange={setPlan} />
+                <PlanToggle
+                  plan={plan}
+                  onChange={(next) => {
+                    setPlan(next);
+                    // Only warms if typing has already started, since
+                    // warmSecret is a no-op until then.
+                    if (warmingRef.current.monthly || warmingRef.current.annual) {
+                      warmSecret(next);
+                    }
+                  }}
+                />
               </div>
             )}
             <div className="flex items-baseline justify-between">
@@ -616,26 +693,14 @@ export default function CheckoutPage() {
           <div style={{ borderTop: `1px solid ${C.border}` }} />
 
           {!clientSecret ? (
-            <EmailForm onSubmit={handleEmailSubmit} loading={loading} errorMsg={errorMsg} />
+            <EmailForm
+              onSubmit={handleEmailSubmit}
+              loading={loading}
+              errorMsg={errorMsg}
+              onFirstInput={() => warmSecret(plan)}
+            />
           ) : (
             <>
-              {/* Once the card step is reached the plan toggle is hidden, so
-                  without this there is no way to change your mind about
-                  monthly vs yearly, or fix a mistyped email, short of
-                  reloading the page. */}
-              <button
-                type="button"
-                onClick={() => {
-                  setClientSecret(null);
-                  setErrorMsg("");
-                }}
-                className="text-sm font-medium transition-colors mb-1"
-                style={{ color: C.muted }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = C.text)}
-                onMouseLeave={(e) => (e.currentTarget.style.color = C.muted)}
-              >
-                &lsaquo; Back
-              </button>
               <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
                 <CheckoutForm
                   email={email}
