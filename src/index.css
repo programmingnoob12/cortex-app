@@ -56,20 +56,35 @@ button[class*="bg-"]:hover:not(:disabled):not([class*="gradient"]):not([class*="
   );
 }
 
-/* Cyan gradient buttons: the whole fill steps up to a brighter cyan on
-   hover, top brighter than bottom. Their fill IS a background-image, so
-   the colours are restated here rather than tinted with white, which on a
-   light cyan just looked washed out. */
+/* Accent buttons follow whichever exercise is on screen.
+   
+   --ex is set on the app's root element from EXERCISE_COLORS, so entering
+   RRT turns every accent button yellow, QNB' turns them purple, and so on.
+   Everywhere outside an exercise it falls back to the app's cyan.
+   
+   The lighter stops are derived with color-mix rather than listed, so one
+   variable is the whole theme. The percentages reproduce the cyan values
+   that were tuned by eye: a visible top-to-bottom ramp on hover whose
+   darkest point is still brighter than the resting fill. */
+:root {
+  --ex: #4cb9d8;
+}
+
+button.bg-gradient-to-r:not(:disabled) {
+  background-image: linear-gradient(
+    to right,
+    var(--ex),
+    color-mix(in srgb, var(--ex) 82%, white)
+  );
+}
+
 button.bg-gradient-to-r:hover:not(:disabled) {
-  /* A wide top-to-bottom ramp, not a flat wash. #8adef2 to #6fd0e8 was too
-     narrow a range to read as a gradient at all. The darkest point here,
-     #57c3e0, is still brighter than the resting fill's lightest point, so
-     the whole button lifts while the light stays clearly at the top. */
-  /* Pulled back a step. The previous top stop, #a3e6f7, was close enough to
-     white that the button glared. The ramp is kept, and the bottom stop is
-     still above the resting fill's lightest point so the whole button
-     lifts. */
-  background-image: linear-gradient(to bottom, #8fdbf0, #6dcce7 45%, #52bedc);
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--ex) 55%, white),
+    color-mix(in srgb, var(--ex) 75%, white) 45%,
+    color-mix(in srgb, var(--ex) 92%, white)
+  );
 }
 
 button:not(:disabled) {
@@ -86,5 +101,9 @@ button[class*="bg-"]:active:not(:disabled):not([class*="gradient"]):not([class*=
 }
 
 button.bg-gradient-to-r:active:not(:disabled) {
-  background-image: linear-gradient(to bottom, #5fc5e0, #4cb9d8);
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--ex) 88%, black),
+    color-mix(in srgb, var(--ex) 78%, black)
+  );
 }
