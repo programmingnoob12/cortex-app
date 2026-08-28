@@ -119,3 +119,10 @@ button.bg-gradient-to-r:active:not(:disabled) {
   box-shadow: inset 0 1px #0000001f, inset 0 2px 6px #00000038;
   transform: translateY(0);
 }
+
+/* Opt-out for the N-back answer buttons: they flash their own state colours
+   trial by trial, and a hover sheen on top read as a second signal. */
+button.no-sheen:hover:not(:disabled),
+button.no-sheen:active:not(:disabled) {
+  background-image: none;
+}
