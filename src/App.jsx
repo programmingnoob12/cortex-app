@@ -24,12 +24,67 @@ const CREATE_SUBSCRIPTION_URL =
   "https://sdvfacmhljkwojvmtflr.supabase.co/functions/v1/create-payment-intent";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_oeUIhMq6Wg9ElS6gCzbIZw_djTvdsLm";
 
-// The displayed figures live here and must match the Stripe Prices exactly.
-// The saving badge is computed rather than hardcoded, so it can never claim
-// a discount the actual numbers do not deliver after rounding.
+// These must match the currency_options on the Stripe Price exactly. The
+// page only displays them; the server decides what is charged, and it
+// whitelists the same six. Anything else is billed in NZD.
+const PRICES = {
+  nzd: { code: "NZD", symbol: "$", monthly: 40, annual: 409 },
+  aud: { code: "AUD", symbol: "$", monthly: 35, annual: 359 },
+  usd: { code: "USD", symbol: "$", monthly: 25, annual: 255 },
+  gbp: { code: "GBP", symbol: "£", monthly: 19, annual: 195 },
+  eur: { code: "EUR", symbol: "€", monthly: 25, annual: 255 },
+  cad: { code: "CAD", symbol: "$", monthly: 35, annual: 359 },
+};
+
+// Country to currency. Anything not listed falls through to NZD, matching
+// the server's fallback so the displayed price is always the charged one.
+const COUNTRY_CURRENCY = {
+  NZ: "nzd",
+  AU: "aud",
+  US: "usd",
+  GB: "gbp",
+  CA: "cad",
+  IE: "eur", AT: "eur", BE: "eur", CY: "eur", EE: "eur", FI: "eur",
+  FR: "eur", DE: "eur", GR: "eur", IT: "eur", LV: "eur", LT: "eur",
+  LU: "eur", MT: "eur", NL: "eur", PT: "eur", SK: "eur", SI: "eur", ES: "eur",
+};
+
+// Read from the browser's locale rather than an IP lookup: no third-party
+// request on the page that takes payments, and no extra latency.
+function detectCurrency() {
+  try {
+    const tags = [
+      ...(navigator.languages || []),
+      navigator.language || "",
+    ].filter(Boolean);
+    for (const tag of tags) {
+      const region = tag.split("-")[1];
+      if (region && COUNTRY_CURRENCY[region.toUpperCase()]) {
+        return COUNTRY_CURRENCY[region.toUpperCase()];
+      }
+    }
+  } catch {
+    // fall through
+  }
+  return "nzd";
+}
+
+const CURRENCY = detectCurrency();
+const P = PRICES[CURRENCY];
+
 const PLANS = {
-  monthly: { label: "$40.00 NZD", period: "per month", amount: 40, months: 1 },
-  annual: { label: "$385.00 NZD", period: "per year", amount: 385, months: 12 },
+  monthly: {
+    label: `${P.symbol}${P.monthly}.00 ${P.code}`,
+    period: "per month",
+    amount: P.monthly,
+    months: 1,
+  },
+  annual: {
+    label: `${P.symbol}${P.annual}.00 ${P.code}`,
+    period: "per year",
+    amount: P.annual,
+    months: 12,
+  },
 };
 
 const ANNUAL_SAVING_PCT = Math.round(
@@ -387,7 +442,7 @@ export default function CheckoutPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ email: enteredEmail, plan }),
+        body: JSON.stringify({ email: enteredEmail, plan, currency: CURRENCY }),
       });
       const data = await res.json();
       if (data.clientSecret) {
@@ -466,7 +521,8 @@ export default function CheckoutPage() {
                   <div className="flex justify-between" style={{ color: C.accentText }}>
                     <span>You save</span>
                     <span>
-                      ${(PLANS.monthly.amount * 12 - PLANS.annual.amount).toFixed(2)} NZD
+                      {P.symbol}
+                      {(PLANS.monthly.amount * 12 - PLANS.annual.amount).toFixed(2)} {P.code}
                     </span>
                   </div>
                 )}
