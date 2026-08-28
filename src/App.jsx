@@ -137,13 +137,13 @@ const P = PRICES[CURRENCY];
 
 const PLANS = {
   monthly: {
-    label: `${P.symbol}${P.monthly.toFixed(2)} ${P.code}`,
+    label: `${P.symbol}${P.monthly.toFixed(2)}`,
     period: "per month",
     amount: P.monthly,
     months: 1,
   },
   annual: {
-    label: `${P.symbol}${P.annual.toFixed(2)} ${P.code}`,
+    label: `${P.symbol}${P.annual.toFixed(2)}`,
     period: "per year",
     amount: P.annual,
     months: 12,
@@ -318,7 +318,7 @@ function HeroMark() {
 // ---------------------------------------------------------------------
 // 2. Step 2: the payment form, mounted once we have a clientSecret
 // ---------------------------------------------------------------------
-function CheckoutForm({ email, priceLabel, pricePeriod }) {
+function CheckoutForm({ email, priceLabel, pricePeriod, currencyCode }) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -364,8 +364,11 @@ function CheckoutForm({ email, priceLabel, pricePeriod }) {
         {submitting ? "Processing…" : "Start training"}
       </button>
       <p className="text-xs text-center leading-relaxed" style={{ color: C.dim }}>
-        By subscribing you authorise us to charge {priceLabel} {pricePeriod} until you
-        cancel. Cancel any time from inside the app.
+        {/* The currency code stays on this one line and nowhere else. "$40.00"
+            is ambiguous across NZ, AU, US and CA, and this is the sentence a
+            card dispute would be judged on. */}
+        By subscribing you authorise us to charge {priceLabel} {currencyCode} {pricePeriod}{" "}
+        until you cancel. Cancel any time from inside the app.
       </p>
     </form>
   );
@@ -591,7 +594,7 @@ export default function CheckoutPage() {
                     <span>You save</span>
                     <span>
                       {P.symbol}
-                      {(PLANS.monthly.amount * 12 - PLANS.annual.amount).toFixed(2)} {P.code}
+                      {(PLANS.monthly.amount * 12 - PLANS.annual.amount).toFixed(2)}
                     </span>
                   </div>
                 )}
@@ -620,6 +623,7 @@ export default function CheckoutPage() {
                 email={email}
                 priceLabel={PLANS[plan].label}
                 pricePeriod={PLANS[plan].period}
+                currencyCode={P.code}
               />
             </Elements>
           )}
