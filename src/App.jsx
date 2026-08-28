@@ -27,13 +27,20 @@ const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_oeUIhMq6Wg9ElS6gCzbIZw_djTvdsLm
 // These must match the currency_options on the Stripe Price exactly. The
 // page only displays them; the server decides what is charged, and it
 // whitelists the same six. Anything else is billed in NZD.
+// Monthly figures are the rounded ones (up, to a number ending in 0, 5 or
+// 9). Annual is then exactly monthly x 12 x 0.85, unrounded, so the saving
+// is a true 15% rather than something that has to be described as "about"
+// 15%. GBP is the only one that lands on cents.
 const PRICES = {
-  nzd: { code: "NZD", symbol: "$", monthly: 40, annual: 409 },
-  aud: { code: "AUD", symbol: "$", monthly: 35, annual: 359 },
+  nzd: { code: "NZD", symbol: "$", monthly: 40, annual: 408 },
+  aud: { code: "AUD", symbol: "$", monthly: 35, annual: 357 },
   usd: { code: "USD", symbol: "$", monthly: 25, annual: 255 },
-  gbp: { code: "GBP", symbol: "£", monthly: 19, annual: 195 },
+  // 228 x 0.85 is 193.80. Rounded DOWN to a whole number so the price does
+  // not read as a conversion, and because anything below 193.80 saves at
+  // least 15%. Rounding up would break the badge's claim.
+  gbp: { code: "GBP", symbol: "£", monthly: 19, annual: 193 },
   eur: { code: "EUR", symbol: "€", monthly: 25, annual: 255 },
-  cad: { code: "CAD", symbol: "$", monthly: 35, annual: 359 },
+  cad: { code: "CAD", symbol: "$", monthly: 35, annual: 357 },
 };
 
 // Country to currency. Anything not listed falls through to NZD, matching
@@ -130,21 +137,27 @@ const P = PRICES[CURRENCY];
 
 const PLANS = {
   monthly: {
-    label: `${P.symbol}${P.monthly}.00 ${P.code}`,
+    label: `${P.symbol}${P.monthly.toFixed(2)} ${P.code}`,
     period: "per month",
     amount: P.monthly,
     months: 1,
   },
   annual: {
-    label: `${P.symbol}${P.annual}.00 ${P.code}`,
+    label: `${P.symbol}${P.annual.toFixed(2)} ${P.code}`,
     period: "per year",
     amount: P.annual,
     months: 12,
   },
 };
 
-const ANNUAL_SAVING_PCT = Math.round(
-  (1 - PLANS.annual.amount / (PLANS.monthly.amount * 12)) * 100
+// Floor, not round: the badge must never claim a bigger saving than the
+// numbers deliver. 15.6% shows as 15%.
+// Floor, so the badge can never claim a bigger saving than the numbers
+// deliver. The epsilon is load-bearing: 193.8 / 228 evaluates to
+// 14.999999999999998, and flooring that raw would advertise 14% on a plan
+// that genuinely saves 15%.
+const ANNUAL_SAVING_PCT = Math.floor(
+  (1 - PLANS.annual.amount / (PLANS.monthly.amount * 12)) * 100 + 1e-9
 );
 
 // The app's palette, so checkout and the product look like one thing.
