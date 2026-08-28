@@ -72,26 +72,27 @@ button[class*="bg-"]:hover:not(:disabled):not([class*="gradient"]):not([class*="
 }
 
 button.bg-gradient-to-r:not(:disabled) {
-  background-image: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--ex) 90%, white),
-    var(--ex) 45%,
-    color-mix(in srgb, var(--ex) 84%, black)
-  );
+  --ob-from: color-mix(in srgb, var(--ex) 86%, black);
+  --ob-to: var(--ex);
+  background-image: linear-gradient(100deg, var(--ob-from), var(--ob-to));
+  color: #fff;
+  box-shadow: inset 0 1px #ffffff4d, inset 0 -1px #0000001f;
+  text-shadow: 0 1px 2px #0000004d;
+  -webkit-text-stroke: 0.07em color-mix(in srgb, var(--ex) 62%, black);
+  paint-order: stroke fill;
 }
 
 button.bg-gradient-to-r:hover:not(:disabled) {
-  background-image: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--ex) 74%, white),
-    color-mix(in srgb, var(--ex) 92%, white) 45%,
-    var(--ex)
-  );
+  --ob-from: color-mix(in srgb, var(--ex) 96%, white);
+  --ob-to: color-mix(in srgb, var(--ex) 76%, white);
+  box-shadow: inset 0 1px #ffffff66, inset 0 -1px #0000001f;
+  transform: translateY(-1px);
 }
 
 button:not(:disabled) {
   transition: background-image 140ms ease, background-color 140ms ease,
-    border-color 140ms ease, color 140ms ease, opacity 140ms ease;
+    border-color 140ms ease, color 140ms ease, opacity 140ms ease,
+    transform 160ms ease-out, box-shadow 160ms ease-out;
 }
 
 button[class*="bg-"]:active:not(:disabled):not([class*="gradient"]):not([class*="bg-transparent"]):not([class*="bg-none"]) {
@@ -103,9 +104,8 @@ button[class*="bg-"]:active:not(:disabled):not([class*="gradient"]):not([class*=
 }
 
 button.bg-gradient-to-r:active:not(:disabled) {
-  background-image: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--ex) 82%, black),
-    color-mix(in srgb, var(--ex) 72%, black)
-  );
+  --ob-from: color-mix(in srgb, var(--ex) 74%, black);
+  --ob-to: color-mix(in srgb, var(--ex) 86%, black);
+  box-shadow: inset 0 1px #0000001f, inset 0 2px 6px #00000038;
+  transform: translateY(0);
 }
