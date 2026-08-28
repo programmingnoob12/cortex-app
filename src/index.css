@@ -72,7 +72,15 @@ button[class*="bg-"]:hover:not(:disabled):not([class*="gradient"]):not([class*="
 }
 
 button.bg-gradient-to-r:not(:disabled) {
-  --ob-from: color-mix(in srgb, var(--ex) 86%, black);
+  /* Left end is a lighter shade of the same hue, right end is --ex itself
+     (amber #E58B09 fades left to #F3A509). hsl(from ...) lifts lightness
+     only, so hue and saturation hold and a light colour never goes pastel;
+     the color-mix line above each is the fallback for older engines. The
+     lift is a fraction of the remaining headroom to white, so a dark hue
+     gains a lot and an already-light one gains a little instead of
+     bleaching. */
+  --ob-from: color-mix(in srgb, var(--ex) 88%, white);
+  --ob-from: hsl(from var(--ex) calc(h + 4) s calc(l + (100 - l) * 0.07));
   --ob-to: var(--ex);
   background-image: linear-gradient(100deg, var(--ob-from), var(--ob-to));
   color: #fff;
@@ -83,8 +91,10 @@ button.bg-gradient-to-r:not(:disabled) {
 }
 
 button.bg-gradient-to-r:hover:not(:disabled) {
-  --ob-from: color-mix(in srgb, var(--ex) 96%, white);
-  --ob-to: color-mix(in srgb, var(--ex) 76%, white);
+  --ob-from: color-mix(in srgb, var(--ex) 78%, white);
+  --ob-from: hsl(from var(--ex) calc(h + 4) calc(s + 4) calc(l + (100 - l) * 0.21));
+  --ob-to: color-mix(in srgb, var(--ex) 88%, white);
+  --ob-to: hsl(from var(--ex) calc(h + 2) calc(s + 4) calc(l + (100 - l) * 0.14));
   box-shadow: inset 0 1px #ffffff66, inset 0 -1px #0000001f;
   transform: translateY(-1px);
 }
@@ -104,8 +114,8 @@ button[class*="bg-"]:active:not(:disabled):not([class*="gradient"]):not([class*=
 }
 
 button.bg-gradient-to-r:active:not(:disabled) {
-  --ob-from: color-mix(in srgb, var(--ex) 74%, black);
-  --ob-to: color-mix(in srgb, var(--ex) 86%, black);
+  --ob-from: hsl(from var(--ex) h s calc(l - l * 0.1));
+  --ob-to: hsl(from var(--ex) h s calc(l - l * 0.16));
   box-shadow: inset 0 1px #0000001f, inset 0 2px 6px #00000038;
   transform: translateY(0);
 }
