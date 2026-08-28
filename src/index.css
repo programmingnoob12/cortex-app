@@ -124,5 +124,9 @@ button.bg-gradient-to-r:active:not(:disabled) {
    trial by trial, and a hover sheen on top read as a second signal. */
 button.no-sheen:hover:not(:disabled),
 button.no-sheen:active:not(:disabled) {
-  background-image: none;
+  /* !important because the generic [class*="bg-"] sheen rule carries far
+     more specificity than a single class can beat. */
+  background-image: none !important;
+  filter: none !important;
+  transform: none !important;
 }
