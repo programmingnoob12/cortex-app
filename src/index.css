@@ -6,18 +6,21 @@
 
 /* Browsers give <button> cursor: default and Tailwind's preflight does not
    change it, so nothing in the app felt clickable. */
+/* !important because a handful of Tailwind utilities (and the browser's own
+   default of `cursor: default` on form controls) were winning against a bare
+   element selector, leaving arrow cursors on buttons. */
 button:not(:disabled),
 [role="button"]:not([aria-disabled="true"]),
 label[for],
 summary,
 select,
 a[href] {
-  cursor: pointer;
+  cursor: pointer !important;
 }
 
 button:disabled,
 [role="button"][aria-disabled="true"] {
-  cursor: not-allowed;
+  cursor: not-allowed !important;
 }
 
 /* Dimming a bright button on a dark background reads as "disabled", not
