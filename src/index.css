@@ -178,3 +178,11 @@ button.deep-fill:active:not(:disabled) {
   );
   transform: translateY(0);
 }
+
+/* Recharts marks its wrapper focusable, so clicking a chart drew a blue
+   focus rectangle around the plot area. */
+.recharts-wrapper:focus,
+.recharts-wrapper *:focus,
+.recharts-surface:focus {
+  outline: none !important;
+}
