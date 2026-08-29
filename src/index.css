@@ -71,31 +71,30 @@ button[class*="bg-"]:hover:not(:disabled):not([class*="gradient"]):not([class*="
   --ex: #4cb9d8;
 }
 
-button.bg-gradient-to-r:not(:disabled) {
-  /* Left end is a lighter shade of the same hue, right end is --ex itself
-     (amber #E58B09 fades left to #F3A509). hsl(from ...) lifts lightness
-     only, so hue and saturation hold and a light colour never goes pastel;
-     the color-mix line above each is the fallback for older engines. The
-     lift is a fraction of the remaining headroom to white, so a dark hue
-     gains a lot and an already-light one gains a little instead of
-     bleaching. */
-  --ob-from: color-mix(in srgb, var(--ex) 88%, white);
-  --ob-from: hsl(from var(--ex) calc(h + 4) s calc(l + (100 - l) * 0.07));
-  --ob-to: var(--ex);
-  background-image: linear-gradient(100deg, var(--ob-from), var(--ob-to));
+/* Accent buttons everywhere use the same fill as the Home button: hue and
+   saturation from --ex with lightness capped, so one cyan appears across the
+   app instead of a bright variant here and a deep one there. */
+button.bg-gradient-to-r:not(:disabled),
+button.bg-gradient-to-r:disabled {
+  background-image: linear-gradient(
+    100deg,
+    hsl(from var(--ex) h s min(l, 44)),
+    hsl(from var(--ex) h s calc(min(l, 44) * 0.76))
+  );
   color: #fff;
-  box-shadow: inset 0 1px #ffffff4d, inset 0 -1px #0000001f;
-  text-shadow: 0 1px 2px #0000004d;
-  -webkit-text-stroke: 0.07em color-mix(in srgb, var(--ex) 62%, black);
-  paint-order: stroke fill;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.16),
+    inset 0 -1px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 button.bg-gradient-to-r:hover:not(:disabled) {
-  --ob-from: color-mix(in srgb, var(--ex) 78%, white);
-  --ob-from: hsl(from var(--ex) calc(h + 4) calc(s + 4) calc(l + (100 - l) * 0.21));
-  --ob-to: color-mix(in srgb, var(--ex) 88%, white);
-  --ob-to: hsl(from var(--ex) calc(h + 2) calc(s + 4) calc(l + (100 - l) * 0.14));
-  box-shadow: inset 0 1px #ffffff66, inset 0 -1px #0000001f;
+  background-image: linear-gradient(
+    100deg,
+    hsl(from var(--ex) h s min(l, 51)),
+    hsl(from var(--ex) h s calc(min(l, 51) * 0.8))
+  );
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.24),
+    inset 0 -1px rgba(0, 0, 0, 0.25);
   transform: translateY(-1px);
 }
 
@@ -114,9 +113,12 @@ button[class*="bg-"]:active:not(:disabled):not([class*="gradient"]):not([class*=
 }
 
 button.bg-gradient-to-r:active:not(:disabled) {
-  --ob-from: hsl(from var(--ex) h s calc(l - l * 0.1));
-  --ob-to: hsl(from var(--ex) h s calc(l - l * 0.16));
-  box-shadow: inset 0 1px #0000001f, inset 0 2px 6px #00000038;
+  background-image: linear-gradient(
+    100deg,
+    hsl(from var(--ex) h s min(l, 37)),
+    hsl(from var(--ex) h s calc(min(l, 37) * 0.74))
+  );
+  box-shadow: inset 0 1px rgba(0, 0, 0, 0.12), inset 0 2px 6px rgba(0, 0, 0, 0.22);
   transform: translateY(0);
 }
 
