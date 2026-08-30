@@ -107,22 +107,19 @@ button:not(:disabled) {
     transform 160ms ease-out, box-shadow 160ms ease-out;
 }
 
-button[class*="bg-"]:active:not(:disabled):not([class*="gradient"]):not([class*="bg-transparent"]):not([class*="bg-none"]) {
-  background-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.14),
-    rgba(0, 0, 0, 0.06)
-  );
-}
+/* Press deliberately looks identical to hover. A darker pressed state read
+   as the button dimming rather than responding, so holding a button now
+   simply holds its hover appearance. */
 
 button.bg-gradient-to-r:active:not(:disabled) {
   background-image: linear-gradient(
     100deg,
-    hsl(from var(--ex) h s min(l, 37)),
-    hsl(from var(--ex) h s calc(min(l, 37) * 0.74))
+    hsl(from var(--ex) h s min(l, 51)),
+    hsl(from var(--ex) h s calc(min(l, 51) * 0.8))
   );
-  box-shadow: inset 0 1px rgba(0, 0, 0, 0.12), inset 0 2px 6px rgba(0, 0, 0, 0.22);
-  transform: translateY(0);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.24),
+    inset 0 -1px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
 }
 
 /* Opt-out for the N-back answer buttons: they flash their own state colours
@@ -177,10 +174,12 @@ button.deep-fill:hover:not(:disabled) {
 button.deep-fill:active:not(:disabled) {
   background-image: linear-gradient(
     100deg,
-    hsl(from var(--ex) h s min(l, 37)),
-    hsl(from var(--ex) h s calc(min(l, 37) * 0.74))
+    hsl(from var(--ex) h s min(l, 51)),
+    hsl(from var(--ex) h s calc(min(l, 51) * 0.8))
   );
-  transform: translateY(0);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.24),
+    inset 0 -1px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
 }
 
 /* Recharts marks its wrapper focusable, so clicking a chart drew a blue
