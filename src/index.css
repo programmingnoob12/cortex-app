@@ -139,8 +139,12 @@ button.no-sheen:active:not(:disabled) {
 /* Clicking a button left the browser's blue focus ring behind. :focus-visible
    keeps it for keyboard users, where it is the only way to see where you are,
    and drops it for a mouse click. */
-button:focus:not(:focus-visible) {
-  outline: none;
+button:focus,
+button:focus-visible,
+button:active,
+[role="button"]:focus,
+[role="button"]:focus-visible {
+  outline: none !important;
 }
 
 /* Deep fill. The same hue and saturation as an accent button with its
