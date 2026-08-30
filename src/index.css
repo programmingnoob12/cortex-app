@@ -241,3 +241,15 @@ button.ex-card.ex-card-shine::after {
     transform: translateX(105%);
   }
 }
+
+/* The N-back grid. Two regimes: beside its answer buttons on a wide screen,
+   where height is the binding constraint, and above them on a narrow one,
+   where the buttons need roughly a quarter of the viewport underneath. */
+.nback-box {
+  width: max(240px, min(100%, 1180px, calc(100vh - 150px)));
+}
+@media (max-width: 767px) {
+  .nback-box {
+    width: min(100%, calc(100vh - 290px));
+  }
+}
