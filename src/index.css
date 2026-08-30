@@ -189,3 +189,52 @@ button.deep-fill:active:not(:disabled) {
 .recharts-surface:focus {
   outline: none !important;
 }
+
+/* Binaural volume slider, shown in the corner of a running exercise. Range
+   inputs have no cross-browser styling hook, so the track and thumb are
+   drawn by hand; the filled portion takes the exercise's colour. */
+.bina-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 108px;
+  height: 16px;
+  background: transparent;
+  cursor: pointer;
+}
+.bina-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: #334155;
+}
+.bina-range::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: #334155;
+}
+.bina-range::-moz-range-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: hsl(from var(--ex) h s min(l, 58));
+}
+.bina-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border-radius: 999px;
+  background: hsl(from var(--ex) h s min(l, 58));
+  border: 2px solid #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.bina-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: hsl(from var(--ex) h s min(l, 58));
+  border: 2px solid #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.bina-range:focus {
+  outline: none;
+}
