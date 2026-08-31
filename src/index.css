@@ -97,14 +97,35 @@ button.bg-gradient-to-r:hover:not(:disabled) {
     hsl(from var(--ex) h s calc(min(l, 51) * 0.8))
   );
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.24),
-    inset 0 -1px rgba(0, 0, 0, 0.25);
-  transform: translateY(-1px);
+    inset 0 -1px rgba(0, 0, 0, 0.25), 0 10px 22px -8px rgba(0, 0, 0, 0.55);
+  transform: translateY(-2px) scale(1.02);
 }
 
+/* Colour settles quickly; movement overshoots and comes back. The
+   1.56 in the transform curve is the overshoot, and it is the whole
+   reason a press feels sprung rather than merely animated. */
 button:not(:disabled) {
   transition: background-image 140ms ease, background-color 140ms ease,
     border-color 140ms ease, color 140ms ease, opacity 140ms ease,
-    transform 160ms ease-out, box-shadow 160ms ease-out;
+    transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Press: down fast and hard, so the release is what springs. A slow
+   squash reads as lag, a fast one reads as contact. */
+button:not(:disabled):active {
+  transition: transform 90ms cubic-bezier(0.4, 0, 1, 1),
+    background-image 140ms ease, box-shadow 90ms ease;
+}
+
+/* Every button lifts a little under the cursor and compresses under a
+   press, whatever its fill. The accent rules below add their own
+   translate on top of this. */
+button:not(:disabled):hover {
+  transform: scale(1.02);
+}
+button:not(:disabled):active {
+  transform: scale(0.965);
 }
 
 /* Press deliberately looks identical to hover. A darker pressed state read
@@ -119,7 +140,7 @@ button.bg-gradient-to-r:active:not(:disabled) {
   );
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.24),
     inset 0 -1px rgba(0, 0, 0, 0.25);
-  transform: translateY(-1px);
+  transform: translateY(1px) scale(0.965);
 }
 
 /* Opt-out for the N-back answer buttons: they flash their own state colours
@@ -167,8 +188,8 @@ button.deep-fill:hover:not(:disabled) {
     hsl(from var(--ex) h s calc(min(l, 51) * 0.8))
   );
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.24),
-    inset 0 -1px rgba(0, 0, 0, 0.25);
-  transform: translateY(-1px);
+    inset 0 -1px rgba(0, 0, 0, 0.25), 0 12px 26px -10px rgba(0, 0, 0, 0.6);
+  transform: translateY(-3px) scale(1.02);
 }
 
 button.deep-fill:active:not(:disabled) {
@@ -179,7 +200,7 @@ button.deep-fill:active:not(:disabled) {
   );
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.24),
     inset 0 -1px rgba(0, 0, 0, 0.25);
-  transform: translateY(-1px);
+  transform: translateY(1px) scale(0.965);
 }
 
 /* Recharts marks its wrapper focusable, so clicking a chart drew a blue
@@ -197,16 +218,16 @@ button.ex-card {
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 180ms cubic-bezier(0.2, 0.7, 0.3, 1),
-    box-shadow 180ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  transition: transform 340ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 button.ex-card:hover:not(:disabled) {
-  transform: translateY(-6px) scale(1.02);
+  transform: translateY(-8px) scale(1.03);
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.22),
     inset 0 -1px rgba(0, 0, 0, 0.25), 0 22px 34px -12px rgba(0, 0, 0, 0.62) !important;
 }
 button.ex-card:active:not(:disabled) {
-  transform: translateY(-4px) scale(1.01);
+  transform: translateY(-2px) scale(0.985);
 }
 button.ex-card::after {
   content: "";
@@ -251,5 +272,20 @@ button.ex-card.ex-card-shine::after {
 @media (max-width: 767px) {
   .nback-box {
     width: min(100%, calc(100vh - 190px));
+  }
+}
+
+/* Anyone who has asked their system not to animate gets the states without
+   the movement. */
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled):hover,
+  button:not(:disabled):active,
+  button.bg-gradient-to-r:hover:not(:disabled),
+  button.bg-gradient-to-r:active:not(:disabled),
+  button.deep-fill:hover:not(:disabled),
+  button.deep-fill:active:not(:disabled),
+  button.ex-card:hover:not(:disabled),
+  button.ex-card:active:not(:disabled) {
+    transform: none;
   }
 }
