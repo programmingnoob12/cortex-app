@@ -250,6 +250,6 @@ button.ex-card.ex-card-shine::after {
 }
 @media (max-width: 767px) {
   .nback-box {
-    width: min(100%, calc(100vh - 290px));
+    width: min(100%, calc(100vh - 190px));
   }
 }
