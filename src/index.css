@@ -267,11 +267,11 @@ button.ex-card.ex-card-shine::after {
    where height is the binding constraint, and above them on a narrow one,
    where the buttons need roughly a quarter of the viewport underneath. */
 .nback-box {
-  width: max(240px, min(100%, 1400px, calc(100vh - 108px)));
+  width: max(240px, min(100%, 1400px, calc(100vh - 140px)));
 }
 @media (max-width: 767px) {
   .nback-box {
-    width: min(100%, calc(100vh - 190px));
+    width: min(100%, calc(100vh - 220px));
   }
 }
 
