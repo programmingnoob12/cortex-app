@@ -289,3 +289,10 @@ button.ex-card.ex-card-shine::after {
     transform: none;
   }
 }
+
+/* Text links built as <button> should not take the global hover lift: the
+   scale nudges a dotted underline around and reads as a glitch. */
+button.no-lift:hover:not(:disabled),
+button.no-lift:active:not(:disabled) {
+  transform: none !important;
+}
