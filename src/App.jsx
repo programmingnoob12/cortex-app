@@ -247,9 +247,9 @@ function HeroMark() {
           <stop offset="100%" stopColor="#3B3A72" />
         </linearGradient>
         <linearGradient id="hm-table" x1="0.1" y1="0" x2="0.7" y2="1">
-          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.72" />
-          <stop offset="55%" stopColor="#FFFFFF" stopOpacity="0.34" />
-          <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.16" />
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.5" />
+          <stop offset="55%" stopColor="#FFFFFF" stopOpacity="0.28" />
+          <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.14" />
         </linearGradient>
         <linearGradient id="hm-shade" x1="0" y1="0" x2="0.2" y2="1">
           <stop offset="0%" stopColor="#06202B" stopOpacity="0.04" />
@@ -293,9 +293,15 @@ function HeroMark() {
       <polygon points={CROWN_R} fill="#FFFFFF" fillOpacity="0.08" />
       <polygon points={TABLE} fill="url(#hm-table)" />
 
+      {/* One narrow streak, angled across the pavilion. The two wide vertical
+          bands this replaces crossed the flat table facet and read as a pale
+          square in the top-left of the stone. */}
       <g clipPath="url(#hm-clip)">
-        <path d="M40 60 L96 60 L58 300 L20 300 Z" fill="url(#hm-sheen)" opacity="0.5" />
-        <path d="M108 60 L124 60 L86 300 L70 300 Z" fill="url(#hm-sheen)" opacity="0.28" />
+        <path
+          d="M96 118 L118 118 L74 292 L58 292 Z"
+          fill="url(#hm-sheen)"
+          opacity="0.3"
+        />
       </g>
 
       <polygon points={SIL} fill="none" stroke="url(#hm-rim)" strokeWidth="2" strokeLinejoin="round" />
