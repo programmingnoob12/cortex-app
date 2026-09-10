@@ -41,18 +41,40 @@
       line-height: 1.6;
       margin: 0 0 8px;
     }
+    .start {
+      display: block;
+      margin: 28px 0 20px;
+      padding: 16px 24px;
+      border-radius: 10px;
+      background: #4CB9D8;
+      color: #06232B;
+      font-size: 1.125rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .start:hover { filter: brightness(1.07); }
     .email-note {
       color: #d4d4d8;
       font-weight: 500;
+      font-size: 0.9375rem;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="check">✓</div>
+    <div class="check">&#10003;</div>
     <h1>You're in</h1>
-    <p>We've sent a sign-in link to your inbox — open it to get started.</p>
-    <p class="email-note">Check your junk or spam folder if you don't see it.</p>
+    <p>Your membership is active.</p>
+    <!-- The page used to end here, which left everyone who had just paid
+         with nowhere to go but their inbox. -->
+    <a class="start" href="https://cortex-game.vercel.app">Start training</a>
+    <p class="email-note">
+      Already signed in on this device? That button takes you straight in.
+    </p>
+    <p>
+      Otherwise, check your inbox for the sign-in link. Look in junk or spam
+      if you don't see it.
+    </p>
   </div>
 </body>
 </html>
