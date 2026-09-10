@@ -1,0 +1,4 @@
+# Not launched yet. Remove this file, and the robots meta in index.html,
+# when the app should start appearing in search results.
+User-agent: *
+Disallow: /
