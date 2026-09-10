@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -537,8 +537,12 @@ function EmailForm({ onSubmit, loading, errorMsg, onFirstInput }) {
 // 4. Page shell
 // ---------------------------------------------------------------------
 export default function CheckoutPage() {
-  const [email, setEmail] = useState("");
-  const [showCard, setShowCard] = useState(false);
+  // Arriving from the app with ?email= means we already know who they are:
+  // skip the email step entirely rather than making them retype an address
+  // we were just handed.
+  const prefilledEmail = useMemo(readEmailFromUrl, []);
+  const [email, setEmail] = useState(prefilledEmail);
+  const [showCard, setShowCard] = useState(!!prefilledEmail);
   const [errorMsg, setErrorMsg] = useState("");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [plan, setPlan] = useState("monthly");
@@ -578,6 +582,13 @@ export default function CheckoutPage() {
     },
     [requestSecret]
   );
+
+  // Typing the address is what normally warms the secret. When the address
+  // came in on the URL there is no typing, so warm it on mount instead.
+  useEffect(() => {
+    if (prefilledEmail) warmSecret(plan);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefilledEmail]);
 
   // Purely local now. Moving to the card step involves no network call at
   // all, because <Elements> renders from mode/amount/currency rather than a
@@ -717,6 +728,20 @@ export default function CheckoutPage() {
           </div>
 
           <div style={{ borderTop: `1px solid ${C.border}` }} />
+
+          {showCard && (
+            <div className="flex items-baseline justify-between gap-3 text-sm">
+              <span style={{ color: C.dim }}>{email}</span>
+              <button
+                type="button"
+                onClick={() => setShowCard(false)}
+                className="hover:underline"
+                style={{ color: C.accentText, background: "none", border: 0, padding: 0 }}
+              >
+                Use a different email
+              </button>
+            </div>
+          )}
 
           {!showCard ? (
             <EmailForm
