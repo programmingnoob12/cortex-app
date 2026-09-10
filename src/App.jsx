@@ -18,7 +18,11 @@ const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 // provisioned against whatever email is typed on this page, so a second
 // address silently creates a second account and strands their streak,
 // scores and history on the first one.
-const APP_URL = "https://cortex-game-git-main-cortex-85e4.vercel.app/";
+// The production domain, not a branch deployment. A branch URL sits behind
+// Vercel's deployment protection, so every link here — and every auth
+// redirect that came back to it — landed on a Vercel login wall instead of
+// the app.
+const APP_URL = "https://cortex-game.vercel.app/";
 
 const CREATE_SUBSCRIPTION_URL =
   "https://sdvfacmhljkwojvmtflr.supabase.co/functions/v1/create-payment-intent";

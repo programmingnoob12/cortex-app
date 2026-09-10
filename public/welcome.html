@@ -4,12 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>You're in</title>
+  <!-- Stripe sends people here the moment the payment clears. There is
+       nothing to decide on this page, so it does not ask: it goes straight
+       back to the app, which reads the fresh membership and opens the regime
+       picker with everything unlocked. ?upgraded is what tells it to throw
+       away this browser's cached "free" verdict.
+
+       The redirect is a meta refresh with a script ahead of it so it also
+       works with the address replaced rather than pushed, keeping Stripe's
+       return URL out of the back button. The card below is only ever seen
+       if both are unavailable. -->
+  <meta http-equiv="refresh" content="0;url=https://cortex-game.vercel.app/?upgraded=1" />
+  <script>
+    try {
+      window.location.replace("https://cortex-game.vercel.app/?upgraded=1");
+    } catch (e) {
+      window.location.href = "https://cortex-game.vercel.app/?upgraded=1";
+    }
+  </script>
   <style>
     body {
       margin: 0;
       min-height: 100vh;
-      background: #000;
-      color: #fff;
+      background: #08090A;
+      color: #F7F8F8;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       display: flex;
       align-items: center;
@@ -17,64 +35,12 @@
       text-align: center;
       padding: 24px;
     }
-    .card {
-      max-width: 420px;
-    }
-    .check {
-      width: 56px;
-      height: 56px;
-      border-radius: 999px;
-      background: #059669;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 24px;
-      font-size: 28px;
-    }
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin: 0 0 12px;
-    }
-    p {
-      color: #a1a1aa;
-      line-height: 1.6;
-      margin: 0 0 8px;
-    }
-    .start {
-      display: block;
-      margin: 28px 0 20px;
-      padding: 16px 24px;
-      border-radius: 10px;
-      background: #4CB9D8;
-      color: #06232B;
-      font-size: 1.125rem;
-      font-weight: 600;
-      text-decoration: none;
-    }
-    .start:hover { filter: brightness(1.07); }
-    .email-note {
-      color: #d4d4d8;
-      font-weight: 500;
-      font-size: 0.9375rem;
-    }
+    a { color: #4CB9D8; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="check">&#10003;</div>
-    <h1>You're in</h1>
-    <p>Your membership is active.</p>
-    <!-- The page used to end here, which left everyone who had just paid
-         with nowhere to go but their inbox. -->
-    <a class="start" href="https://cortex-game.vercel.app">Start training</a>
-    <p class="email-note">
-      Already signed in on this device? That button takes you straight in.
-    </p>
-    <p>
-      Otherwise, check your inbox for the sign-in link. Look in junk or spam
-      if you don't see it.
-    </p>
-  </div>
+  <p>
+    You're in. <a href="https://cortex-game.vercel.app/?upgraded=1">Start training</a>
+  </p>
 </body>
 </html>
