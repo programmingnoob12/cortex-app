@@ -506,10 +506,6 @@ function EmailForm({ onSubmit, loading, errorMsg, onFirstInput }) {
           onFocus={(e) => (e.target.style.border = `1px solid ${C.accent}`)}
           onBlur={(e) => (e.target.style.border = `1px solid ${C.border}`)}
         />
-        <p className="text-xs mt-2 leading-relaxed" style={{ color: C.dim }}>
-          Had a membership before? Use the same email so your streak and scores carry
-          over.
-        </p>
       </div>
       {errorMsg && (
         <p className="text-sm" style={{ color: C.danger }}>
