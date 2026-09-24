@@ -174,9 +174,10 @@ const C = {
   text: "#F7F8F8",
   muted: "#8A8F98",
   dim: "#6E7178",
-  accent: "#4CB9D8",
-  accentHover: "#5FC5E0",
-  accentText: "#8FD8EC",
+  // Purple, the app's main theme colour (it was cyan).
+  accent: "#7537E2",
+  accentHover: "#5A2AB5",
+  accentText: "#B9A0F5",
   danger: "#EB5757",
 };
 
@@ -443,7 +444,7 @@ function PlanToggle({ plan, onChange }) {
             {opt.key === "annual" && (
               <span
                 className="text-[11px] font-semibold rounded-full px-2 py-0.5"
-                style={{ backgroundColor: C.accent, color: "#06181F" }}
+                style={{ backgroundColor: C.accent, color: "#FFFFFF" }}
               >
                 SAVE {ANNUAL_SAVING_PCT}%
               </span>
