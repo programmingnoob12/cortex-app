@@ -219,9 +219,12 @@ const appearance = {
 // the product read as one thing rather than two designs bolted together.
 // ---------------------------------------------------------------------
 function HeroMark() {
-  const SIL = "60.1,68.3 178.9,68.3 237.7,102.6 254.9,144.3 149.5,281.5 44.2,144.3 61.3,102.6";
-  const TABLE = "60.1,68.3 178.9,68.3 215.7,112.4 83.4,112.4";
-  const CROWN_L = "61.3,102.6 60.1,68.3 83.4,112.4";
+  // The top-left corner of the table was at x 60 instead of 120.1, which
+  // bent the stone's left shoulder into a right angle — the "square" in its
+  // top left. These are the app's rank gem points, scaled up.
+  const SIL = "120.1,68.3 178.9,68.3 237.7,102.6 254.9,144.3 149.5,281.5 44.2,144.3 61.3,102.6";
+  const TABLE = "120.1,68.3 178.9,68.3 215.7,112.4 83.4,112.4";
+  const CROWN_L = "61.3,102.6 120.1,68.3 83.4,112.4";
   const CROWN_R = "178.9,68.3 237.7,102.6 215.7,112.4";
   const CROWN_LL = "44.2,144.3 61.3,102.6 83.4,112.4";
   const CROWN_RR = "254.9,144.3 237.7,102.6 215.7,112.4";
@@ -235,26 +238,26 @@ function HeroMark() {
       width="272"
       height="308"
       role="img"
-      aria-label="A faceted cyan gem"
+      aria-label="A faceted purple gem"
       className="mx-auto block"
     >
       <defs>
         <radialGradient id="hm-halo" cx="50%" cy="40%" r="54%">
-          <stop offset="0%" stopColor="#5FC5E0" stopOpacity="0.5" />
-          <stop offset="45%" stopColor="#4CB9D8" stopOpacity="0.16" />
+          <stop offset="0%" stopColor="#8753EA" stopOpacity="0.5" />
+          <stop offset="45%" stopColor="#7537E2" stopOpacity="0.16" />
           <stop offset="100%" stopColor="#8B7FE8" stopOpacity="0" />
         </radialGradient>
         <linearGradient id="hm-body" x1="0.12" y1="0" x2="0.9" y2="1">
-          <stop offset="0%" stopColor="#DFF7FF" />
-          <stop offset="18%" stopColor="#96DCEF" />
-          <stop offset="42%" stopColor="#4CB9D8" />
-          <stop offset="72%" stopColor="#256F8C" />
-          <stop offset="100%" stopColor="#3B3A72" />
+          <stop offset="0%" stopColor="#B99BF7" />
+          <stop offset="22%" stopColor="#9A6CF0" />
+          <stop offset="46%" stopColor="#7537E2" />
+          <stop offset="74%" stopColor="#4A1F9E" />
+          <stop offset="100%" stopColor="#2B1663" />
         </linearGradient>
         <linearGradient id="hm-table" x1="0.1" y1="0" x2="0.7" y2="1">
-          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.5" />
-          <stop offset="55%" stopColor="#FFFFFF" stopOpacity="0.28" />
-          <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.14" />
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.4" />
+          <stop offset="55%" stopColor="#FFFFFF" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.1" />
         </linearGradient>
         <linearGradient id="hm-shade" x1="0" y1="0" x2="0.2" y2="1">
           <stop offset="0%" stopColor="#06202B" stopOpacity="0.04" />
@@ -262,7 +265,7 @@ function HeroMark() {
         </linearGradient>
         <linearGradient id="hm-rim" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.8" />
-          <stop offset="45%" stopColor="#CFEFFA" stopOpacity="0.3" />
+          <stop offset="45%" stopColor="#DCCBFF" stopOpacity="0.3" />
           <stop offset="100%" stopColor="#8B7FE8" stopOpacity="0.35" />
         </linearGradient>
         <linearGradient id="hm-sheen" x1="0" y1="0" x2="1" y2="1">
@@ -270,8 +273,8 @@ function HeroMark() {
           <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
         </linearGradient>
         <radialGradient id="hm-floor" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#4CB9D8" stopOpacity="0.34" />
-          <stop offset="100%" stopColor="#4CB9D8" stopOpacity="0" />
+          <stop offset="0%" stopColor="#7537E2" stopOpacity="0.34" />
+          <stop offset="100%" stopColor="#7537E2" stopOpacity="0" />
         </radialGradient>
         <filter id="hm-soft" x="-45%" y="-45%" width="190%" height="190%">
           <feGaussianBlur stdDeviation="9" />
@@ -285,7 +288,7 @@ function HeroMark() {
       <ellipse cx="150" cy="290" rx="82" ry="13" fill="url(#hm-floor)" />
 
       <g filter="url(#hm-soft)" opacity="0.5">
-        <polygon points={SIL} fill="#4CB9D8" />
+        <polygon points={SIL} fill="#7537E2" />
       </g>
 
       <polygon points={SIL} fill="url(#hm-body)" />
@@ -294,7 +297,7 @@ function HeroMark() {
       <polygon points={PAV_R} fill="#FFFFFF" fillOpacity="0.06" />
       <polygon points={CROWN_LL} fill="#FFFFFF" fillOpacity="0.12" />
       <polygon points={CROWN_RR} fill="#08121F" fillOpacity="0.14" />
-      <polygon points={CROWN_L} fill="#FFFFFF" fillOpacity="0.24" />
+      <polygon points={CROWN_L} fill="#FFFFFF" fillOpacity="0.2" />
       <polygon points={CROWN_R} fill="#FFFFFF" fillOpacity="0.08" />
       <polygon points={TABLE} fill="url(#hm-table)" />
 
@@ -318,7 +321,7 @@ function HeroMark() {
       />
       <path
         d="M267 120 L269.5 129 L278 131.5 L269.5 134 L267 143 L264.5 134 L256 131.5 L264.5 129 Z"
-        fill="#BDEBF7"
+        fill="#D6C4FF"
         opacity="0.7"
       />
       <circle cx="231" cy="126" r="2.4" fill="#F2FDFF" opacity="0.75" />
